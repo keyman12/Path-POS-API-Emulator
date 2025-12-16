@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path Payment Terminal API Emulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <img src="/static/path-logo.png" alt="Path logo" class="logo-img" />
+            </div>
+            <nav>
+                <a href="#api-tester">API Tester</a>
+                <a href="#websocket">WebSocket</a>
+                <a href="#docs">Docs</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h2>Payment Terminal API Emulator</h2>
+            <p>Test your iOS/Android payment terminal integrations without physical hardware</p>
+        </section>
+
+        <section id="api-tester" class="section">
+            <h3>API Tester</h3>
+            <div class="tester-container">
+                <div class="tester-panel">
+                    <h4>Request</h4>
+                    <div class="form-group">
+                        <label>Command:</label>
+                        <select id="cmd-select">
+                            <option value="Login">Login</option>
+                            <option value="Logout">Logout</option>
+                            <option value="Sale">Sale</option>
+                            <option value="Refund">Refund</option>
+                            <option value="Reversal">Reversal</option>
+                            <option value="Cancellation">Cancellation</option>
+                            <option value="Completion">Completion</option>
+                            <option value="AutoReversal">Auto-Reversal</option>
+                            <option value="Loyalty">Loyalty</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Request ID:</label>
+                        <input type="text" id="req-id" value="req_001" />
+                    </div>
+                    <div class="form-group">
+                        <label>Arguments (JSON):</label>
+                        <textarea id="args-input" rows="6">{
+  "amount": 10000,
+  "session_id": ""
+}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Endpoint:</label>
+                        <select id="endpoint-select">
+                            <option value="/api/v1/login">/api/v1/login</option>
+                            <option value="/api/v1/logout">/api/v1/logout</option>
+                            <option value="/api/v1/payment/sale">/api/v1/payment/sale</option>
+                            <option value="/api/v1/payment/refund">/api/v1/payment/refund</option>
+                            <option value="/api/v1/reversal">/api/v1/reversal</option>
+                            <option value="/api/v1/cancellation">/api/v1/cancellation</option>
+                            <option value="/api/v1/completion">/api/v1/completion</option>
+                            <option value="/api/v1/auto-reversal">/api/v1/auto-reversal</option>
+                            <option value="/api/v1/loyalty">/api/v1/loyalty</option>
+                        </select>
+                    </div>
+                    <button id="send-btn" class="btn-primary">Send Request</button>
+                </div>
+                <div class="tester-panel">
+                    <h4>Response</h4>
+                    <div id="response-display" class="response-display">
+                        <p class="placeholder">Response will appear here...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="websocket" class="section">
+            <h3>WebSocket Tester</h3>
+            <div class="websocket-container">
+                <div class="ws-controls">
+                    <button id="ws-connect-btn" class="btn-primary">Connect</button>
+                    <button id="ws-disconnect-btn" class="btn-secondary" disabled>Disconnect</button>
+                    <span id="ws-status" class="status-indicator">Disconnected</span>
+                </div>
+                <div class="ws-messages">
+                    <div id="ws-message-log" class="message-log"></div>
+                </div>
+                <div class="ws-send">
+                    <textarea id="ws-message-input" placeholder='{"cmd": "Sale", "req_id": "req_001", "args": {"amount": 10000}}' rows="4"></textarea>
+                    <button id="ws-send-btn" class="btn-primary" disabled>Send Message</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="docs" class="section">
+            <h3>API Documentation</h3>
+            <div class="docs-links">
+                <a href="/docs" target="_blank" class="btn-secondary">Interactive API Docs (Swagger)</a>
+                <a href="/redoc" target="_blank" class="btn-secondary">ReDoc Documentation</a>
+                <a href="/openapi.json" target="_blank" class="btn-secondary">OpenAPI JSON</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Path. All rights reserved. | <a href="https://path2ai.tech" target="_blank">path2ai.tech</a></p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
+
