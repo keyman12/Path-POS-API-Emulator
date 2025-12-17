@@ -172,18 +172,51 @@ sudo ufw enable
 
 ## SSL/HTTPS Setup (Optional but Recommended)
 
-### Using Let's Encrypt
+For detailed SSL/HTTPS setup instructions, see [DOMAIN_SETUP.md](DOMAIN_SETUP.md)
 
+### Quick Setup Using Script
+
+**Amazon Linux 2023:**
 ```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d your-domain.com
+cd /opt/path-terminal-api
+sudo ./scripts/setup-ssl.sh posapi.path2ai.tech your-email@example.com
 ```
 
-The certificate will auto-renew. Test renewal:
-
+**Ubuntu:**
 ```bash
+cd /opt/path-terminal-api
+sudo ./scripts/setup-ssl.sh posapi.path2ai.tech your-email@example.com
+```
+
+### Manual Setup
+
+**Amazon Linux 2023:**
+```bash
+# Install Certbot
+sudo dnf update -y
+sudo dnf install -y certbot python3-certbot-nginx
+
+# Obtain certificate
+sudo certbot --nginx -d posapi.path2ai.tech
+
+# Test renewal
 sudo certbot renew --dry-run
 ```
+
+**Ubuntu:**
+```bash
+# Install Certbot
+sudo apt update
+sudo apt install -y certbot python3-certbot-nginx
+
+# Obtain certificate
+sudo certbot --nginx -d posapi.path2ai.tech
+
+# Test renewal
+sudo certbot renew --dry-run
+```
+
+The certificate will auto-renew. For complete setup instructions including DNS configuration, see [DOMAIN_SETUP.md](DOMAIN_SETUP.md).
 
 ## Updating the Application
 

@@ -105,7 +105,12 @@ sudo systemctl reload nginx
 sudo dnf update -y
 
 # Install Certbot and Nginx plugin
+# Note: On Amazon Linux 2023, you may need to enable EPEL repository first
+sudo dnf install -y epel-release
 sudo dnf install -y certbot python3-certbot-nginx
+
+# If certbot is not available in default repos, use pip:
+# sudo pip3 install certbot certbot-nginx
 ```
 
 **Ubuntu/Debian:**
@@ -114,7 +119,7 @@ sudo dnf install -y certbot python3-certbot-nginx
 sudo apt update
 
 # Install Certbot and Nginx plugin
-sudo apt install certbot python3-certbot-nginx
+sudo apt install -y certbot python3-certbot-nginx
 ```
 
 ## Step 5: Obtain SSL Certificate
@@ -131,6 +136,18 @@ sudo ./scripts/setup-ssl.sh posapi.path2ai.tech
 
 **Option 2: Manual Certbot setup**
 
+**Amazon Linux 2023:**
+```bash
+# Request certificate (Certbot will automatically configure Nginx)
+sudo certbot --nginx -d posapi.path2ai.tech
+
+# Follow the prompts:
+# - Enter your email address
+# - Agree to terms of service
+# - Choose whether to redirect HTTP to HTTPS (recommended: Yes)
+```
+
+**Ubuntu/Debian:**
 ```bash
 # Request certificate (Certbot will automatically configure Nginx)
 sudo certbot --nginx -d posapi.path2ai.tech
@@ -156,6 +173,19 @@ Certbot will:
 
 Certbot sets up automatic renewal, but verify it's working:
 
+**Amazon Linux 2023:**
+```bash
+# Test renewal (dry run)
+sudo certbot renew --dry-run
+
+# Check renewal timer (if using systemd timer)
+sudo systemctl status certbot.timer
+
+# Or check cron job
+sudo crontab -l | grep certbot
+```
+
+**Ubuntu:**
 ```bash
 # Test renewal (dry run)
 sudo certbot renew --dry-run
@@ -164,7 +194,7 @@ sudo certbot renew --dry-run
 sudo systemctl status certbot.timer
 ```
 
-Certificates auto-renew 30 days before expiration.
+Certificates auto-renew 30 days before expiration. On Amazon Linux, Certbot typically uses a cron job rather than a systemd timer.
 
 ## Step 8: Update CORS Configuration (Production)
 
@@ -210,6 +240,7 @@ nslookup posapi.path2ai.tech
 1. **Check DNS is resolving**:
    ```bash
    dig posapi.path2ai.tech
+   # Should return your Elastic IP address
    ```
 
 2. **Check port 80 is open**:
@@ -219,18 +250,46 @@ nslookup posapi.path2ai.tech
    sudo firewall-cmd --permanent --add-service=http
    sudo firewall-cmd --reload
    
+   # Also verify AWS Security Group allows port 80 (most important!)
+   # Go to EC2 Console → Security Groups → Inbound Rules
+   
    # Ubuntu - check UFW
    sudo ufw status
    sudo ufw allow 80/tcp
    ```
 
-3. **Check Nginx is running**:
+3. **Check Nginx is running and configured correctly**:
    ```bash
+   # Amazon Linux - check config location
+   sudo cat /etc/nginx/conf.d/path-terminal-api.conf
+   
+   # Ubuntu - check config location
+   sudo cat /etc/nginx/sites-available/path-terminal-api
+   
+   # Test configuration
+   sudo nginx -t
+   
+   # Check status
    sudo systemctl status nginx
    ```
 
-4. **Check firewall on EC2 Security Group**:
-   - Ensure port 80 and 443 are open in AWS Security Group (most important for Amazon Linux)
+4. **Check firewall on EC2 Security Group** (CRITICAL for Amazon Linux):
+   - Go to AWS Console → EC2 → Security Groups
+   - Select your instance's security group
+   - Inbound Rules must allow:
+     - Port 80 (HTTP) from 0.0.0.0/0
+     - Port 443 (HTTPS) from 0.0.0.0/0
+   - **This is the most common issue on Amazon Linux!**
+
+5. **Amazon Linux specific - Certbot installation issues**:
+   ```bash
+   # If certbot package not found, install via pip
+   sudo pip3 install certbot certbot-nginx
+   
+   # Or use snap (if available)
+   sudo snap install --classic certbot
+   sudo ln -s /snap/bin/certbot /usr/bin/certbot
+   ```
 
 ### Mixed Content Warnings
 
