@@ -190,3 +190,13 @@ class TerminalEmulator:
         """Check if result should be sent (not ACK_ONLY mode)"""
         return not self.ack_only
 
+
+# Shared singleton instance - all routers use this same instance
+_emulator_instance = None
+
+def get_emulator() -> TerminalEmulator:
+    """Get the shared terminal emulator instance"""
+    global _emulator_instance
+    if _emulator_instance is None:
+        _emulator_instance = TerminalEmulator()
+    return _emulator_instance

@@ -4,10 +4,10 @@ Reversal & Cancellation endpoints
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 from ..models.requests import BaseRequest
-from ..services.terminal_emulator import TerminalEmulator
+from ..services.terminal_emulator import get_emulator
 
 router = APIRouter(prefix="/api/v1", tags=["Reversal"])
-emulator = TerminalEmulator()
+emulator = get_emulator()  # Use shared singleton instance
 
 
 @router.post("/reversal", response_model=Dict[str, Any])

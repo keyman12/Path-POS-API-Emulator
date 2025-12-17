@@ -4,10 +4,10 @@ Payment endpoints - Sale, Refund, PaymentResponse
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 from ..models.requests import BaseRequest
-from ..services.terminal_emulator import TerminalEmulator
+from ..services.terminal_emulator import get_emulator
 
 router = APIRouter(prefix="/api/v1/payment", tags=["Payment"])
-emulator = TerminalEmulator()
+emulator = get_emulator()  # Use shared singleton instance
 
 
 @router.post("/sale", response_model=Dict[str, Any])

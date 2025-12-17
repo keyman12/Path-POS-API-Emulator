@@ -4,10 +4,10 @@ Completion Advice endpoints
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 from ..models.requests import BaseRequest
-from ..services.terminal_emulator import TerminalEmulator
+from ..services.terminal_emulator import get_emulator
 
 router = APIRouter(prefix="/api/v1/completion", tags=["Completion"])
-emulator = TerminalEmulator()
+emulator = get_emulator()  # Use shared singleton instance
 
 
 @router.post("", response_model=Dict[str, Any])

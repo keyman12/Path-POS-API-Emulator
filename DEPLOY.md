@@ -4,7 +4,7 @@ This guide covers deploying the Path Payment Terminal API Emulator to an AWS EC2
 
 ## Prerequisites
 
-- AWS EC2 instance (Ubuntu 22.04 LTS recommended)
+- AWS EC2 instance (Amazon Linux 2023 recommended)
 - SSH access to the instance
 - Python 3.10+ installed
 - Git installed
@@ -14,11 +14,22 @@ This guide covers deploying the Path Payment Terminal API Emulator to an AWS EC2
 ### 1. Connect to EC2 Instance
 
 ```bash
+# Amazon Linux
+ssh -i your-key.pem ec2-user@your-ec2-ip
+
+# Ubuntu (if using)
 ssh -i your-key.pem ubuntu@your-ec2-ip
 ```
 
 ### 2. Install System Dependencies
 
+**Amazon Linux 2023:**
+```bash
+sudo dnf update -y
+sudo dnf install -y python3 python3-pip python3.11 python3.11-pip nginx git
+```
+
+**Ubuntu/Debian:**
 ```bash
 sudo apt update
 sudo apt install -y python3-pip python3-venv nginx git
@@ -29,7 +40,10 @@ sudo apt install -y python3-pip python3-venv nginx git
 ```bash
 cd /opt
 sudo git clone <your-repository-url> path-terminal-api
-sudo chown -R ubuntu:ubuntu path-terminal-api
+# Amazon Linux
+sudo chown -R ec2-user:ec2-user path-terminal-api
+# Ubuntu
+# sudo chown -R ubuntu:ubuntu path-terminal-api
 cd path-terminal-api
 ```
 
@@ -46,6 +60,7 @@ pip install -r requirements.txt
 
 Create `/etc/systemd/system/path-terminal-api.service`:
 
+**Amazon Linux:**
 ```ini
 [Unit]
 Description=Path Payment Terminal API Emulator
@@ -53,7 +68,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
+User=ec2-user
 WorkingDirectory=/opt/path-terminal-api/backend
 Environment="PATH=/opt/path-terminal-api/backend/venv/bin"
 Environment="ACK_ONLY=false"
@@ -68,9 +83,12 @@ RestartSec=10
 WantedBy=multi-user.target
 ```
 
+**Ubuntu:** (Change `User=ec2-user` to `User=ubuntu`)
+
 ### 6. Configure Nginx
 
-Create `/etc/nginx/sites-available/path-terminal-api`:
+**Amazon Linux 2023:**
+Create `/etc/nginx/conf.d/path-terminal-api.conf`:
 
 ```nginx
 server {
@@ -89,7 +107,6 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 
-    # WebSocket support
     location /ws {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
@@ -102,10 +119,16 @@ server {
 }
 ```
 
-Enable the site:
+**Ubuntu/Debian:**
+Create `/etc/nginx/sites-available/path-terminal-api` (same content as above), then:
 
 ```bash
 sudo ln -s /etc/nginx/sites-available/path-terminal-api /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+```
+
+Test and restart:
+```bash
 sudo nginx -t
 sudo systemctl restart nginx
 ```
@@ -121,6 +144,25 @@ sudo systemctl status path-terminal-api
 
 ### 8. Configure Firewall
 
+**Amazon Linux 2023:**
+```bash
+# Enable and start firewalld
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+
+# Add services
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload
+```
+
+**Note:** Amazon Linux primarily uses AWS Security Groups for firewall rules. Ensure your Security Group allows:
+- Port 22 (SSH)
+- Port 80 (HTTP)
+- Port 443 (HTTPS)
+
+**Ubuntu:**
 ```bash
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp

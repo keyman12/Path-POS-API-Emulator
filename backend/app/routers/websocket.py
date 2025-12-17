@@ -4,10 +4,10 @@ WebSocket endpoint for real-time bidirectional communication
 import json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import Dict, Any
-from ..services.terminal_emulator import TerminalEmulator
+from ..services.terminal_emulator import get_emulator
 
 router = APIRouter()
-emulator = TerminalEmulator()
+emulator = get_emulator()  # Use shared singleton instance
 
 
 @router.websocket("/ws")

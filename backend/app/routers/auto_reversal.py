@@ -4,10 +4,10 @@ Auto-Reversal endpoints for error recovery
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 from ..models.requests import BaseRequest
-from ..services.terminal_emulator import TerminalEmulator
+from ..services.terminal_emulator import get_emulator
 
 router = APIRouter(prefix="/api/v1", tags=["Auto-Reversal"])
-emulator = TerminalEmulator()
+emulator = get_emulator()  # Use shared singleton instance
 
 
 @router.post("/auto-reversal", response_model=Dict[str, Any])

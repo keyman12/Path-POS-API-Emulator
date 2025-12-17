@@ -7,7 +7,7 @@ This guide covers setting up `posapi.path2ai.tech` with HTTPS using Let's Encryp
 ## Prerequisites
 
 1. **Domain DNS Access**: You need access to DNS settings for `path2ai.tech`
-2. **EC2 Instance**: Running Ubuntu with the application deployed
+2. **EC2 Instance**: Running Amazon Linux 2023 (or Ubuntu) with the application deployed
 3. **Elastic IP**: Static IP address from AWS (recommended)
 
 ## Step 1: Configure AWS Elastic IP
@@ -50,6 +50,12 @@ This guide covers setting up `posapi.path2ai.tech` with HTTPS using Let's Encryp
 
 Update the Nginx configuration to use your domain:
 
+**Amazon Linux 2023:**
+```bash
+sudo nano /etc/nginx/conf.d/path-terminal-api.conf
+```
+
+**Ubuntu/Debian:**
 ```bash
 sudo nano /etc/nginx/sites-available/path-terminal-api
 ```
@@ -93,6 +99,16 @@ sudo systemctl reload nginx
 
 ## Step 4: Install Certbot (Let's Encrypt)
 
+**Amazon Linux 2023:**
+```bash
+# Update system
+sudo dnf update -y
+
+# Install Certbot and Nginx plugin
+sudo dnf install -y certbot python3-certbot-nginx
+```
+
+**Ubuntu/Debian:**
 ```bash
 # Update system
 sudo apt update
@@ -102,6 +118,18 @@ sudo apt install certbot python3-certbot-nginx
 ```
 
 ## Step 5: Obtain SSL Certificate
+
+**Option 1: Using the setup script (Recommended)**
+
+```bash
+# Run the automated setup script
+sudo ./scripts/setup-ssl.sh posapi.path2ai.tech your-email@example.com
+
+# Or without email (will prompt you)
+sudo ./scripts/setup-ssl.sh posapi.path2ai.tech
+```
+
+**Option 2: Manual Certbot setup**
 
 ```bash
 # Request certificate (Certbot will automatically configure Nginx)
@@ -186,6 +214,12 @@ nslookup posapi.path2ai.tech
 
 2. **Check port 80 is open**:
    ```bash
+   # Amazon Linux - check firewalld
+   sudo firewall-cmd --list-all
+   sudo firewall-cmd --permanent --add-service=http
+   sudo firewall-cmd --reload
+   
+   # Ubuntu - check UFW
    sudo ufw status
    sudo ufw allow 80/tcp
    ```
@@ -196,7 +230,7 @@ nslookup posapi.path2ai.tech
    ```
 
 4. **Check firewall on EC2 Security Group**:
-   - Ensure port 80 and 443 are open in AWS Security Group
+   - Ensure port 80 and 443 are open in AWS Security Group (most important for Amazon Linux)
 
 ### Mixed Content Warnings
 

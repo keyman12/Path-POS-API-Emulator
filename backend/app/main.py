@@ -47,11 +47,6 @@ app.include_router(loyalty.router)
 app.include_router(auto_reversal.router)
 app.include_router(websocket.router)
 
-# Mount static files
-static_path = os.path.join(os.path.dirname(__file__), "static")
-if os.path.exists(static_path):
-    app.mount("/static", StaticFiles(directory=static_path), name="static")
-
 # Serve frontend
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "..", "frontend")
 if os.path.exists(frontend_path):
@@ -66,7 +61,7 @@ if os.path.exists(frontend_path):
                 return content
         return "<html><body><h1>Path Payment Terminal API Emulator</h1><p>Frontend not found</p></body></html>"
     
-    # Serve static files from frontend directory
+    # Serve static files from frontend directory (only mount once)
     app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
 

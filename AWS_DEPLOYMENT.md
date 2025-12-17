@@ -5,23 +5,46 @@
 Before deploying, ensure your EC2 instance has:
 
 ### 1. Operating System
-- **Ubuntu 22.04 LTS** (recommended) or Ubuntu 20.04 LTS
-- Or Amazon Linux 2023
+- **Amazon Linux 2023** (recommended)
+- Or Ubuntu 22.04 LTS / 20.04 LTS
 
 ### 2. Required Software
 
 #### Python 3.10 or 3.11
+
+**Amazon Linux 2023:**
 ```bash
 # Check Python version
 python3 --version
 
-# Ubuntu - Python should be pre-installed
+# Install Python 3.11 (recommended) or use pre-installed Python 3
+sudo dnf update -y
+sudo dnf install -y python3 python3-pip python3.11 python3.11-pip
+```
+
+**Ubuntu:**
+```bash
+# Check Python version
+python3 --version
+
+# Python should be pre-installed
 # If not, install:
 sudo apt update
 sudo apt install python3 python3-pip python3-venv
 ```
 
 #### Git
+
+**Amazon Linux 2023:**
+```bash
+# Install Git
+sudo dnf install -y git
+
+# Verify
+git --version
+```
+
+**Ubuntu:**
 ```bash
 # Install Git
 sudo apt update
@@ -32,6 +55,17 @@ git --version
 ```
 
 #### Nginx (Web Server)
+
+**Amazon Linux 2023:**
+```bash
+# Install Nginx
+sudo dnf install -y nginx
+
+# Verify
+nginx -v
+```
+
+**Ubuntu:**
 ```bash
 # Install Nginx
 sudo apt update
@@ -53,7 +87,24 @@ Ensure your EC2 security group allows:
 - **Port 80** (HTTP) - from anywhere (0.0.0.0/0)
 - **Port 443** (HTTPS) - from anywhere (0.0.0.0/0) - if using SSL
 
-#### Firewall (UFW)
+#### Firewall
+
+**Amazon Linux 2023:**
+```bash
+# Enable firewalld
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+
+# Add services
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload
+```
+
+**Note:** Amazon Linux primarily uses AWS Security Groups. Ensure your Security Group allows ports 22, 80, 443.
+
+**Ubuntu:**
 ```bash
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
@@ -67,6 +118,10 @@ sudo ufw enable
 
 1. **Connect to EC2**:
    ```bash
+   # Amazon Linux
+   ssh -i your-key.pem ec2-user@your-ec2-ip
+   
+   # Ubuntu
    ssh -i your-key.pem ubuntu@your-ec2-ip
    ```
 
@@ -155,6 +210,9 @@ For setting up `posapi.path2ai.tech` with HTTPS, see [DOMAIN_SETUP.md](DOMAIN_SE
 Quick setup:
 ```bash
 # After deployment, set up SSL
+sudo ./scripts/setup-ssl.sh posapi.path2ai.tech your-email@example.com
+
+# Or without email (will prompt you)
 sudo ./scripts/setup-ssl.sh posapi.path2ai.tech
 ```
 
