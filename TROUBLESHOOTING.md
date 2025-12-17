@@ -109,6 +109,29 @@ ls -la backend/app/static/
 2. Verify CORS settings in `main.py`
 3. For production, ensure Nginx is configured for WebSocket upgrade
 
+### Service Not Starting on Boot
+
+**Problem**: Application doesn't start automatically after server restart
+
+**Solution**: Verify and enable the service
+
+```bash
+# Check if service is enabled
+systemctl is-enabled path-terminal-api
+
+# If it returns "disabled" or "not-found", enable it:
+sudo systemctl enable path-terminal-api
+sudo systemctl enable nginx
+
+# Verify
+systemctl is-enabled path-terminal-api
+# Should return: enabled
+
+# Or use the check script
+cd /opt/path-terminal-api
+sudo ./scripts/check-autostart.sh
+```
+
 ### EC2 Deployment Issues
 
 **Problem**: Service won't start - "Failed to locate executable uvicorn"

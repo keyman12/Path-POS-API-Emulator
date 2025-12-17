@@ -159,10 +159,22 @@ sudo systemctl restart nginx
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable path-terminal-api
+sudo systemctl enable path-terminal-api  # Enables auto-start on boot
 sudo systemctl start path-terminal-api
 sudo systemctl status path-terminal-api
 ```
+
+**Verify Auto-Start is Enabled:**
+```bash
+# Check if service will start on boot
+systemctl is-enabled path-terminal-api
+# Should return: enabled
+
+# If not enabled, enable it:
+sudo systemctl enable path-terminal-api
+```
+
+**Note**: The `enable` command ensures the service starts automatically when the server reboots.
 
 ### 8. Configure Firewall
 
