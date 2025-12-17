@@ -111,7 +111,21 @@ ls -la backend/app/static/
 
 ### EC2 Deployment Issues
 
-**Problem**: Service won't start on EC2
+**Problem**: Service won't start - "Failed to locate executable uvicorn"
+
+**Solution**: Virtual environment not created or dependencies not installed
+
+```bash
+# Quick fix - run verification script
+cd /opt/path-terminal-api
+sudo ./scripts/verify-install.sh
+
+# Then restart
+sudo systemctl daemon-reload
+sudo systemctl restart path-terminal-api
+```
+
+**Problem**: Service won't start on EC2 (general)
 
 **Solution**: Check logs and permissions
 
@@ -122,7 +136,21 @@ sudo systemctl status path-terminal-api
 # View logs
 sudo journalctl -u path-terminal-api -n 50
 
-# Check permissions
+# Check if venv exists and uvicorn is installed
+ls -la /opt/path-terminal-api/backend/venv/bin/uvicorn
+
+# If missing, recreate venv
+cd /opt/path-terminal-api/backend
+sudo rm -rf venv
+python3.11 -m venv venv || python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Fix permissions (Amazon Linux)
+sudo chown -R ec2-user:ec2-user /opt/path-terminal-api
+
+# Fix permissions (Ubuntu)
 sudo chown -R ubuntu:ubuntu /opt/path-terminal-api
 
 # Verify Python path in service file

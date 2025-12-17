@@ -49,11 +49,33 @@ cd path-terminal-api
 
 ### 4. Create Virtual Environment
 
+**Amazon Linux 2023:**
+```bash
+cd backend
+
+# Create virtual environment (use python3.11 if available)
+python3.11 -m venv venv || python3 -m venv venv
+
+# Activate and install
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Verify uvicorn is installed
+which uvicorn
+# Should show: /opt/path-terminal-api/backend/venv/bin/uvicorn
+```
+
+**Ubuntu:**
 ```bash
 cd backend
 python3 -m venv venv
 source venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
+
+# Verify uvicorn is installed
+which uvicorn
 ```
 
 ### 5. Create Systemd Service
@@ -261,12 +283,55 @@ sudo nginx -t
 
 ## Troubleshooting
 
-### Service Won't Start
+### Service Won't Start - "Failed to locate executable uvicorn"
+
+This error means the virtual environment wasn't created properly or dependencies weren't installed.
+
+**Quick Fix:**
+```bash
+# Run the verification script
+cd /opt/path-terminal-api
+sudo ./scripts/verify-install.sh
+
+# Then restart the service
+sudo systemctl daemon-reload
+sudo systemctl restart path-terminal-api
+```
+
+**Manual Fix:**
+```bash
+cd /opt/path-terminal-api/backend
+
+# Remove broken venv if it exists
+sudo rm -rf venv
+
+# Recreate virtual environment
+python3.11 -m venv venv || python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Verify uvicorn exists
+ls -la venv/bin/uvicorn
+
+# Fix permissions
+sudo chown -R ec2-user:ec2-user /opt/path-terminal-api
+
+# Restart service
+sudo systemctl daemon-reload
+sudo systemctl restart path-terminal-api
+```
+
+### Service Won't Start - Other Issues
 
 1. Check logs: `sudo journalctl -u path-terminal-api -n 50`
 2. Verify Python path: `which python3`
 3. Check virtual environment: `ls -la /opt/path-terminal-api/backend/venv`
-4. Verify port availability: `sudo netstat -tulpn | grep 8000`
+4. Verify uvicorn exists: `ls -la /opt/path-terminal-api/backend/venv/bin/uvicorn`
+5. Verify port availability: `sudo netstat -tulpn | grep 8000`
+6. Check file permissions: `ls -la /opt/path-terminal-api/backend/venv/bin/`
 
 ### Nginx Issues
 

@@ -74,10 +74,41 @@ sudo chown -R $SERVICE_USER:$SERVICE_USER "$APP_DIR"
 # Create virtual environment
 echo "Setting up Python virtual environment..."
 cd "$APP_DIR/backend"
-$PYTHON_CMD -m venv venv
+
+# Remove existing venv if it exists and is broken
+if [ -d "venv" ] && [ ! -f "venv/bin/activate" ]; then
+    echo "Removing broken virtual environment..."
+    rm -rf venv
+fi
+
+# Create venv if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "Creating virtual environment..."
+    $PYTHON_CMD -m venv venv
+else
+    echo "Virtual environment already exists."
+fi
+
+# Activate and install dependencies
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
+
+# Verify uvicorn is installed
+if [ ! -f "venv/bin/uvicorn" ]; then
+    echo "ERROR: uvicorn not found after installation"
+    echo "Attempting to reinstall..."
+    pip install --force-reinstall uvicorn[standard]
+fi
+
+# Verify installation
+if [ -f "venv/bin/uvicorn" ]; then
+    echo "✓ Virtual environment setup complete"
+    echo "✓ uvicorn found at: $(pwd)/venv/bin/uvicorn"
+else
+    echo "ERROR: Failed to install uvicorn"
+    exit 1
+fi
 
 # Create systemd service
 echo "Creating systemd service..."
